@@ -1,10 +1,3 @@
-MTM1NTU2ODEzMjE4MTQ2MzI0MQ.GKDfRN.7y9gAKVqBA1ZS3GA4Nm-CBejPOCrLc-nROyrsM
-
-https://discord.com/oauth2/authorize?client_id=1355568132181463241&permissions=19456&scope=bot
-
----------------------------
-reagiert mit kartoffel emoji auf nachrichten welche selbst das kartoffel emoji beinhalten und am counten sind (verif durch counting bot reaktions emoji)
-
 import discord
 import asyncio
 import os
