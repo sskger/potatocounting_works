@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 # 🔐 Lade Umgebungsvariablen aus .env (lokal) oder Railway (cloud)
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
-
+print("DEBUG: DISCORD_TOKEN =", TOKEN)
 if TOKEN is None:
     raise ValueError("❌ DISCORD_TOKEN ist nicht gesetzt! Bitte als Umgebungsvariable hinzufügen.")
 
