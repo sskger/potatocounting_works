@@ -1,14 +1,12 @@
 import discord
 import asyncio
 import os
-from dotenv import load_dotenv
 
 # 🔐 Lade Umgebungsvariablen aus .env (lokal) oder Railway (cloud)
-load_dotenv()
-TOKEN = os.getenv("DISCORD_TOKEN")
 print("DEBUG: DISCORD_TOKEN =", TOKEN)
+TOKEN = os.environ.get("DISCORD_TOKEN")
 if TOKEN is None:
-    raise ValueError("❌ DISCORD_TOKEN ist nicht gesetzt! Bitte als Umgebungsvariable hinzufügen.")
+    raise ValueError("❌ DISCORD_TOKEN ist nicht gesetzt!")
 
 KARTOFFEL_EMOJI = '🥔'
 TARGET_USERNAME = 'counting#5250'  # z. B. counting#5250
