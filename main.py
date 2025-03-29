@@ -3,7 +3,6 @@ import asyncio
 import os
 
 # 🔐 Lade Umgebungsvariablen aus .env (lokal) oder Railway (cloud)
-print("DEBUG: DISCORD_TOKEN =", TOKEN)
 TOKEN = os.environ.get("DISCORD_TOKEN")
 if TOKEN is None:
     raise ValueError("❌ DISCORD_TOKEN ist nicht gesetzt!")
