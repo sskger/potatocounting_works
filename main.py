@@ -1,14 +1,17 @@
 import discord
 import asyncio
 import os
-
-# 🔐 Ersetze diesen Token durch deinen eigenen Bot-Token
 from dotenv import load_dotenv
-load_dotenv()  # sucht nach einer .env Datei
 
+# 🔐 Lade Umgebungsvariablen aus .env (lokal) oder Railway (cloud)
+load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
+
+if TOKEN is None:
+    raise ValueError("❌ DISCORD_TOKEN ist nicht gesetzt! Bitte als Umgebungsvariable hinzufügen.")
+
 KARTOFFEL_EMOJI = '🥔'
-TARGET_USERNAME = 'counting#5250'  # Name und Discriminator (z. B. counting#5250)
+TARGET_USERNAME = 'counting#5250'  # z. B. counting#5250
 
 # ➕ Notwendige Intents aktivieren
 intents = discord.Intents.default()
@@ -30,7 +33,7 @@ async def on_message(message):
 
     # Prüfe, ob 🥔 im Nachrichtentext vorkommt
     if KARTOFFEL_EMOJI in message.content:
-        await asyncio.sleep(2)  # Warte 5 Sekunden, damit der Zielnutzer reagieren kann
+        await asyncio.sleep(5)  # Warte 5 Sekunden, damit der Zielnutzer reagieren kann
 
         # Lade die Nachricht neu, um aktuelle Reaktionen zu prüfen
         refreshed_message = await message.channel.fetch_message(message.id)
