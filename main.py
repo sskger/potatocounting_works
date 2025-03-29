@@ -47,4 +47,3 @@ async def on_message(message):
 
 # 🚀 Starte den Bot
 client.run(TOKEN)
-
