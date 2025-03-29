@@ -4,7 +4,9 @@ import os
 
 # 🔐 Ersetze diesen Token durch deinen eigenen Bot-Token
 from dotenv import load_dotenv
-load_dotenv("DISCORD_TOKEN")
+load_dotenv()  # sucht nach einer .env Datei
+
+TOKEN = os.getenv("DISCORD_TOKEN")
 KARTOFFEL_EMOJI = '🥔'
 TARGET_USERNAME = 'counting#5250'  # Name und Discriminator (z. B. counting#5250)
 
