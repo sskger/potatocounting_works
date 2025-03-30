@@ -30,7 +30,7 @@ async def on_message(message):
 
     # Prüfe, ob 🥔 im Nachrichtentext vorkommt
     if KARTOFFEL_EMOJI in message.content:
-        await asyncio.sleep(5)  # Warte 5 Sekunden, damit der Zielnutzer reagieren kann
+        await asyncio.sleep(2)  # Warte 2 Sekunden, damit der Zielnutzer reagieren kann
 
         # Lade die Nachricht neu, um aktuelle Reaktionen zu prüfen
         refreshed_message = await message.channel.fetch_message(message.id)
