@@ -17,13 +17,13 @@ intents.members = True
 
 client = discord.Client(intents=intents)
 
-db_pool = None  # globale DB-Verbindung
+db_pool = None  # global DB pool
 
 
 async def init_db():
     global db_pool
 
-    # SSL-Fix für Railway
+    # SSL fix for Railway
     ssl_context = ssl.create_default_context()
     ssl_context.check_hostname = False
     ssl_context.verify_mode = ssl.CERT_NONE
@@ -32,35 +32,35 @@ async def init_db():
 
     async with db_pool.acquire() as conn:
         await conn.execute("""
-        CREATE TABLE IF NOT EXISTS kartoffel_counter (
+        CREATE TABLE IF NOT EXISTS potato_counter (
             username TEXT PRIMARY KEY,
             count INTEGER NOT NULL
         )
         """)
 
 
-async def increment_kartoffel_count(username):
+async def increment_potato_count(username):
     async with db_pool.acquire() as conn:
         await conn.execute("""
-        INSERT INTO kartoffel_counter (username, count)
+        INSERT INTO potato_counter (username, count)
         VALUES ($1, 1)
         ON CONFLICT (username)
-        DO UPDATE SET count = kartoffel_counter.count + 1
+        DO UPDATE SET count = potato_counter.count + 1
         """, username)
 
 
-async def get_kartoffel_count(username):
+async def get_potato_count(username):
     async with db_pool.acquire() as conn:
         row = await conn.fetchrow("""
-        SELECT count FROM kartoffel_counter WHERE username = $1
+        SELECT count FROM potato_counter WHERE username = $1
         """, username)
         return row['count'] if row else 0
 
 
-async def get_top_kartoffel_counts(limit=5):
+async def get_top_potato_counts(limit=5):
     async with db_pool.acquire() as conn:
         rows = await conn.fetch("""
-        SELECT username, count FROM kartoffel_counter
+        SELECT username, count FROM potato_counter
         ORDER BY count DESC
         LIMIT $1
         """, limit)
@@ -69,7 +69,7 @@ async def get_top_kartoffel_counts(limit=5):
 
 @client.event
 async def on_ready():
-    print(f'✅ Bot gestartet als {client.user}')
+    print(f'✅ Bot is running as {client.user}')
     await init_db()
 
 
@@ -78,19 +78,31 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith("!kartoffelcount"):
+    if message.content.startswith("!potatohelp"):
+        help_text = (
+            "🥔 **Potato Bot Commands** 🥔\n\n"
+            "`!potatohelp` - Show this help message\n"
+            "`!potatocount` - Show the top users with the most 🥔 reactions\n"
+            "`!potatocount <username#1234>` - Show the number of 🥔 reactions for a specific user\n\n"
+            "This bot reacts with a 🥔 emoji if a specific user (`counting#5250`) reacts to potato messages.\n"
+            "It also keeps track of how many times each user was potato-reacted. 🧮"
+        )
+        await message.channel.send(help_text)
+        return
+
+    if message.content.startswith("!potatocount"):
         parts = message.content.strip().split()
         if len(parts) == 2:
             username = parts[1]
-            count = await get_kartoffel_count(username)
-            await message.channel.send(f'🥔 {username} hat {count} Kartoffel-Reaktionen erhalten.')
+            count = await get_potato_count(username)
+            await message.channel.send(f'🥔 {username} has received {count} potato reaction(s).')
         else:
-            top_users = await get_top_kartoffel_counts()
+            top_users = await get_top_potato_counts()
             if not top_users:
-                await message.channel.send("📉 Noch keine Kartoffeln verteilt.")
+                await message.channel.send("📉 No potato reactions recorded yet.")
                 return
             top_msg = '\n'.join([f"{row['username']}: {row['count']}" for row in top_users])
-            await message.channel.send(f'🥔 Kartoffel-Topliste:\n{top_msg}')
+            await message.channel.send(f'🥔 Top Potato Leaderboard:\n{top_msg}')
         return
 
     if KARTOFFEL_EMOJI in message.content:
@@ -102,12 +114,12 @@ async def on_message(message):
                 if str(user) == TARGET_USERNAME:
                     try:
                         await refreshed_message.add_reaction(KARTOFFEL_EMOJI)
-                        print(f'✅ Reagiere mit {KARTOFFEL_EMOJI} auf Nachricht von {message.author}')
-                        await increment_kartoffel_count(str(message.author))
+                        print(f'✅ Reacted with {KARTOFFEL_EMOJI} to a message from {message.author}')
+                        await increment_potato_count(str(message.author))
                     except discord.HTTPException as e:
-                        print(f'⚠️ Fehler beim Reagieren: {e}')
+                        print(f'⚠️ Reaction error: {e}')
                     return
 
 
-# 🚀 Starte den Bot
+# 🚀 Start the bot
 client.run(TOKEN)
