@@ -4,11 +4,15 @@ import os
 import asyncpg
 import ssl
 
+# ✅ Token & DB-Verbindung aus Railway-Umgebungsvariablen
 TOKEN = os.environ.get("DISCORD_TOKEN")
 DATABASE_URL = os.environ.get("DATABASE_URL")
 KARTOFFEL_EMOJI = '🥔'
 TARGET_USERNAME = 'counting#5250'
+SPECIAL_USER = 'fwog#0001'
+TRIGGER_PHRASE = 'potato emoji'
 
+# ✅ Discord Intents aktivieren
 intents = discord.Intents.default()
 intents.message_content = True
 intents.messages = True
@@ -17,13 +21,15 @@ intents.members = True
 
 client = discord.Client(intents=intents)
 
-db_pool = None  # global DB pool
+# ✅ Globale Datenbankverbindung
+db_pool = None
 
 
+# 📦 Initialisiere Datenbank
 async def init_db():
     global db_pool
 
-    # SSL fix for Railway
+    # 🔐 Railway erfordert modifiziertes SSL-Context
     ssl_context = ssl.create_default_context()
     ssl_context.check_hostname = False
     ssl_context.verify_mode = ssl.CERT_NONE
@@ -39,6 +45,7 @@ async def init_db():
         """)
 
 
+# ➕ Zähler erhöhen
 async def increment_potato_count(username):
     async with db_pool.acquire() as conn:
         await conn.execute("""
@@ -49,6 +56,7 @@ async def increment_potato_count(username):
         """, username)
 
 
+# 🔍 Zähler abfragen
 async def get_potato_count(username):
     async with db_pool.acquire() as conn:
         row = await conn.fetchrow("""
@@ -57,6 +65,7 @@ async def get_potato_count(username):
         return row['count'] if row else 0
 
 
+# 🏆 Topliste abfragen
 async def get_top_potato_counts(limit=5):
     async with db_pool.acquire() as conn:
         rows = await conn.fetch("""
@@ -67,17 +76,20 @@ async def get_top_potato_counts(limit=5):
         return rows
 
 
+# 🟢 Bot ist bereit
 @client.event
 async def on_ready():
     print(f'✅ Bot is running as {client.user}')
     await init_db()
 
 
+# 💬 Nachrichten-Handler
 @client.event
 async def on_message(message):
     if message.author == client.user:
         return
 
+    # 📘 Hilfe anzeigen
     if message.content.startswith("!potatohelp"):
         help_text = (
             "🥔 **Potato Bot Commands** 🥔\n\n"
@@ -90,6 +102,7 @@ async def on_message(message):
         await message.channel.send(help_text)
         return
 
+    # 📊 Count abfragen
     if message.content.startswith("!potatocount"):
         parts = message.content.strip().split()
         if len(parts) == 2:
@@ -105,8 +118,19 @@ async def on_message(message):
             await message.channel.send(f'🥔 Top Potato Leaderboard:\n{top_msg}')
         return
 
+    # 🆕 fwog#0001 schreibt irgendwas mit "potato emoji"
+    if str(message.author) == SPECIAL_USER and TRIGGER_PHRASE in message.content.lower():
+        try:
+            await message.add_reaction(KARTOFFEL_EMOJI)
+            print(f'✅ fwog#0001 hat eine Nachricht mit „potato emoji“ geschrieben – 🥔 Reaktion hinzugefügt')
+            await increment_potato_count(str(message.author))
+        except discord.HTTPException as e:
+            print(f'⚠️ Fehler beim Reagieren auf fwog-Nachricht: {e}')
+        return
+
+    # 🧠 counting#5250 reagiert auf Nachricht mit 🥔
     if KARTOFFEL_EMOJI in message.content:
-        await asyncio.sleep(2)
+        await asyncio.sleep(2)  # kurze Pause, damit Reaktionen gesetzt werden können
         refreshed_message = await message.channel.fetch_message(message.id)
 
         for reaction in refreshed_message.reactions:
@@ -121,5 +145,5 @@ async def on_message(message):
                     return
 
 
-# 🚀 Start the bot
+# 🚀 Starte den Bot (wird von Railway automatisch ausgeführt)
 client.run(TOKEN)
